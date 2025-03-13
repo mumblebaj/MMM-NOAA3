@@ -4,13 +4,13 @@
  */
 var NodeHelper = require("node_helper");
 var moment = require('moment');
-var request = require('request');
+//var request = require('request');
 const fs = require('fs');
 
 module.exports = NodeHelper.create({
 
     config: {
-		updateInterval:  5 * 1000,
+        updateInterval: 5 * 1000,
         initialLoadDelay: 400000
     },
     provider: null,
@@ -22,109 +22,118 @@ module.exports = NodeHelper.create({
         weatherbit: 'wb',
         weatherunlocked: 'wu',
         accuweather: 'aw',
-		msn: 'ms',
+        msn: 'ms',
     },
 
-    start: function() {
+    start: function () {
         var self = this;
-        setTimeout(function() {
-        });
+        setTimeout(function () {});
     },
 
-    socketNotificationReceived: function(notification, payload) {
+    socketNotificationReceived: function (notification, payload) {
         if (notification === "MMM-NOAA3") {
-			this.sendSocketNotification('MMM-NOAA3');
+            //this.sendSocketNotification('MMM-NOAA3');
             this.path = "modules/MMM-NOAA3/latlon.json";
             this.provider = this.getProviderFromConfig(payload);
             this.provider.addModuleConfiguration(payload);
-			this.config = payload;
+            this.config = payload;
             this.getData();
             this.getSRSS();
-            this.getAIR(); 
-			this.getMoonData();
-			if (this.providers[config.provider] == 'ds'){
-				console.log(this.providers[config.provider]);
-				 this.getALERT()
-		    };
+            this.getAIR();
+            this.getMoonData();
+            if (this.providers[config.provider] == 'ds') {
+                console.log(this.providers[config.provider]);
+                this.getALERT()
+            };
         }
         this.scheduleUpdate(this.config.updateInterval);
     },
 
-    scheduleUpdate: function() {
+    scheduleUpdate: function () {
         var self = this;
         self.updateInterval = setInterval(() => {
             console.log('NOAA3 weather updated.. next update in 1 hour');
             self.getData();
             self.getSRSS();
-            self.getAIR(); 
-			self.getALERT(); 
-			//console.log(this.providers[this.config.provider]);
-			if (self.providers[config.provider] == 'ds'){self.getALERT()};
+            self.getAIR();
+            self.getALERT();
+            if (self.providers[config.provider] == 'ds') {
+                self.getALERT()
+            };
         }, self.config.updateInterval);
     },
-	
-	getMoonData: function() {
+
+    getMoonData: async function () {
         var self = this;
-		var date = moment().unix();
-		console.log(date);
-		//var date = moment().format('M/D/YYYY');
-        request({ 
-			  url: "http://api.farmsense.net/v1/moonphases/?d="+date,
-			//url: "https://mykle.herokuapp.com/moon",
+        var date = moment().unix();
+
+        const url = "http://api.farmsense.net/v1/moonphases/?d=" + date;
+        const options = {
             method: 'GET'
-        }, (error, response, body) => {
-            if (self.provider) {
-                var moons = JSON.parse(body);  
-				//console.log(moons);
-                var moon = moons[0]['Phase']; 
-                //console.log(moon);
-				}; 
-				 self.sendSocketNotification("MOON_RESULT", moon ? moon : 'NO_MOON_DATA');
-                    });
-           // }
-       // });
+        }
+        try {
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                throw new Error('getMoonData response was not ok');
+            }
+            var moons = await response.json();
+            var moon = moons[0]['Phase'];
+            self.sendSocketNotification("MOON_RESULT", moon ? moon : 'NO_MOON_DATA');
+        } catch (error) {
+            console.log("getMoonData Error: " + error.message);
+            return;
+        }
     },
 
-    getData: function() {
-        var self = this;
-        self.provider.getData(function(response) {
-            self.sendSocketNotification("WEATHER_RESULT", response ? response : 'NO_WEATHER_RESULT'); 
-        });
+    getData: async function () {
+        try {
+            
+            const response = await this.provider.fetchWeatherData();
+            
+            this.sendSocketNotification("WEATHER_RESULT", response || 'NO_WEATHER_RESULT');
+        } catch (error) {
+            console.error("Error fetching weather data:" + error);
+			
+            this.sendSocketNotification("WEATHER_RESULT", 'NO_WEATHER_RESULT');
+        }
     },
 
-    getSRSS: function() {
-        var self = this;
-        self.provider.getSRSS(function(response) {
-            self.sendSocketNotification("SRSS_RESULT", response ? response : 'NO_SRSS_DATA');
-        });
+    getSRSS: async function () {
+        try {
+			const response = await this.provider.fetchSunriseSunset();
+			
+            this.sendSocketNotification("SRSS_RESULT", response || 'NO_SRSS_DATA');
+		} catch (error) {
+			console.error("Error fetching SRSS data:" + error);
+			
+			this.sendSocketNotification("SRSS_RESULT: ", 'NO_SRSS_DATA');
+        }
     },
 
-    getForecast: function() {
-        var self = this;
-        self.provider.getForecast(function(response) {
-            self.sendSocketNotification("FORECAST_RESULT", response ? response : 'NO_FORECAST_DATA');
-        });
+    getAIR: async function () {
+        try {
+			const response = await this.provider.fetchAirQuality();
+			
+            this.sendSocketNotification("AIR_RESULT", response || 'NO_AIR_DATA');
+        } catch (error) {
+			console.error("Error fetching Air Data:", error);
+			
+			this.sendSocketNotification("AIR_RESULT", 'NO_AIR_DATA');
+		}
     },
 
-    getAIR: function() {
+    getALERT: function () {
         var self = this;
-        self.provider.getAIR(function(response) {
-            self.sendSocketNotification("AIR_RESULT", response ? response : 'NO_AIR_DATA');
-        });
-    },
-
-   getALERT: function() {
-        var self = this;
-        self.provider.getALERT(function(response) {
+        self.provider.getALERT(function (response) {
             self.sendSocketNotification("ALERT_RESULT", response ? response : 'NO_ALERT_DATA');
         });
     },
 
-    getProviderFromConfig: function(config) {
+    getProviderFromConfig: function (config) {
         if (!this.providers[config.provider]) {
             throw new Error('Invalid config No provider selected');
         }
-		console.log(this.providers[config.provider]);
+        console.log(this.providers[config.provider]);
         return require('./providers/' + this.providers[config.provider] + '.js');
     }
 });

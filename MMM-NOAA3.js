@@ -11,7 +11,7 @@ Module.register("MMM-NOAA3", {
         animationSpeed: 0,
         initialLoadDelay: 8000,
         rotateInterval: 60 * 1000,
-		updateInterval: 900 * 1000,
+		updateInterval: 21600000,
 		//updateInterval: 5 * 1000,
         apiKey: "",
         airKey: "",
@@ -205,7 +205,7 @@ Module.register("MMM-NOAA3", {
 	processWeather: function(data) {
         this.current = data;
 		console.log(this.current);
-		var weather = this.current.current.current;
+		var weather = this.current.current;
 			 icon = weather.icon;
 			 sunset = this.srss.sunset;
 	    this.sendNotification("WEATHER", {icon , sunset});
@@ -242,21 +242,21 @@ console.log(this.issue);
         var n = d.getHours();
  
         if (typeof current !== 'undefined') {
-            var weather = current.current.weather;
-            var weather_f = current.current.weather_f;
-			var weather_c = current.current.weather_f;
-            var icon = current.current.icon;
-            var temp_f = current.current.temp_f;
-            var temp_c = current.current.temp_c;
-            var fctext = current.current.forecast[0].fcttext;
-            var fctext_m = current.current.forecast[0].fcttext_metric;
-            var humid = current.current.relative_humidity;
-            var baro_in = current.current.pressure_in;
-            var baro_mb = current.current.pressure_mb;
-            var visibility = Math.round(current.current.visibility_mi);
-            var UV = current.current.UV;
-            var wind_mph = Math.round(current.current.wind_mph);
-            var wind_kph = Math.round(current.current.wind_kph);
+            var weather = current.weather;
+            var weather_f = current.weather_f;
+			var weather_c = current.weather_f;
+            var icon = current.icon;
+            var temp_f = current.temp_f;
+            var temp_c = current.temp_c;
+            var fctext = current.weather_f;
+            var fctext_m = current.weather_f;
+            var humid = current.humidity;
+            var baro_in = current.pressure_in;
+            var baro_mb = current.pressure_mb;
+            var visibility = Math.round(current.visibility_mi);
+            var UV = current.UV;
+            var wind_mph = Math.round(current.wind_mph);
+            var wind_kph = Math.round(current.wind_kph);
         }
  //console.log('this is from NOAA3 '+weather);
         var cweat = document.createElement("div");
@@ -324,6 +324,7 @@ console.log(this.issue);
 		srss = this.srss;
         var sunrise = srss.sunrise;
         var sunset = srss.sunset;
+		var daylength = moment.utc(srss.day_length * 1000).format('HH:mm:ss');;
         var utcsunrise = moment.utc(sunrise).toDate();
         var utcsunset = moment.utc(sunset).toDate();
         var sunrise = config.timeFormat == 12 ? moment(utcsunrise).local().format("h:mm") : moment(utcsunrise).local().format("HH:mm");
@@ -342,7 +343,7 @@ console.log(this.issue);
 	 
       <div class="divTableRow">
          <div class="divTableCell">${sunrise}</div>
-         <div class="divTableCell">${this.secondsToString()}</div>
+         <div class="divTableCell">${daylength}</div>
          <div class="divTableCell">${sunset}</div>
       </div>
    </div>
@@ -444,7 +445,7 @@ console.log(this.issue);
 				if (noaa.date.weekday_short == n){
 				fore.innerHTML = "<img src='modules/MMM-NOAA3/images/" + noaa.icon + ".png' height='22' width='28'>";	
 				} else {
-                fore.innerHTML = "<img src='modules/MMM-NOAA3/images/" + noaa.icon + ".png' height='22' width='28'><span class='CellComment'>" + noaa.desc.desc + "</span>";
+                fore.innerHTML = "<img src='modules/MMM-NOAA3/images/" + noaa.icon + ".png' height='22' width='28'><span class='CellComment'>" + noaa.desc + "</span>";
 				}
                 foreRow.appendChild(fore);
                 ForecastTable.appendChild(foreRow);

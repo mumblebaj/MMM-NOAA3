@@ -1,280 +1,104 @@
-/* Magic Mirror
- * Module: MMM-NOAA3
- * By cowboysdude 
- */
-var request = require('request');
- const moment = require('moment');
-  const fs = require('fs');
- var lat, lon, city, zip, current, UV, url, units;
-var forecast = [];
- 
-var provider = { 
-    config: {
-    },
-	
-	  imageArray: {
-		    "01n": "clear",
-            "01d": "clear",
-            "02d": "mostlycloudy",
-            "03d": "mostlycloudy",
-            "04d": "mostlycloudy",
-            "09d": "rain",
-            "10d": "rain",
-			"11d": "tstorms",
-            "13d": "snow",
-            "50d": "chancerain",
-			"03n": "mostlycloudy",
-			"800": "overcast",
-			"04n": "overcast",
-        }, 
-		
-		   addModuleConfiguration: function(moduleConfig) {
-               if(!moduleConfig.apiKey) {
-                   throw new Error('Invalid config, No key for OpenWeather');
-         }
-           this.config.apiKey = moduleConfig.apiKey;
- 		   this.config.airKey = moduleConfig.airKey;
-		   this.config.units = moduleConfig.units;
-		   this.config.userlat = moduleConfig.userlat;
-		   this.config.userlon = moduleConfig.userlon;
-		   this.getForecast();
-		   this.getUV(); 
-        },
-		
-		getForecast: function() {
-        var self = this;
-url = "http://api.openweathermap.org/data/2.5/forecast/daily?lat="+this.config.userlat+"&lon="+this.config.userlon+"&units="+this.config.units+"&appid="+this.config.apiKey;
-        request({
-		    url: url,
-            method: 'GET'
-        }, (error, response, body) => {
-           self.parseForecast(body);
-        });
-    },	
-		
-	getUV: function() {
-        var self = this;
-	 
-			url = "http://api.openweathermap.org/data/2.5/uvi?appid="+this.config.apiKey+"&lat="+this.config.userlat+"&lon="+this.config.userlon;
-		 
-        request({
-			url:  url,
-            method: 'GET'
-        }, (error, response, body) => {
-           self.parseUV(body);
-        });
-    },
-	
-	parseUV: function(response) {
-    var result = JSON.parse(response);
-	UV = (Math.round(result.value));
+const moment = require('moment');
+
+const provider = {
+    config: {},
+
+    imageArray: {
+        "01n": "clear", "01d": "clear", "02d": "mostlycloudy",
+        "03d": "mostlycloudy", "04d": "mostlycloudy", "09d": "rain",
+        "10d": "rain", "11d": "tstorms", "13d": "snow", "50d": "chancerain",
+        "03n": "mostlycloudy", "800": "overcast", "04n": "overcast"
     },
 
-    getData: function(callback) {
-        var self = this;
-		
-			url =  "http://api.openweathermap.org/data/2.5/weather?lat="+this.config.userlat+"&lon="+this.config.userlon+"&units="+config.units+"&appid="+this.config.apiKey+"&lang="+config.language;
-			
-        request(url, function(error, response, body) {
-            if (error) {
-                console.log("Error: " + err.message);
-                callback(null);
-            }
-            callback(self.parseResponse(body));
-        });
+    addModuleConfiguration: function (moduleConfig) {
+        if (!moduleConfig.apiKey) {
+            throw new Error('Invalid config, No key for OpenWeather');
+        }
+        this.config = { ...moduleConfig };
     },
 
-   getSRSS: function(callback) {
-         var self = this;
-		  
-			 url = "https://api.sunrise-sunset.org/json?lat="+this.config.userlat+"&lng="+this.config.userlon+"&formatted=0";
-			 
-         request(url, function(error, response, body) {
-             if (error) {
-                 console.log("Error: " + err.message);
-                 callback(null);
-             }
-             callback(self.parseSRSS(body));
-         });
-     },
-
-    getAIR: function(callback) {
-        var self = this;
-		 
-			url = "http://api.airvisual.com/v2/nearest_city?lat=" + this.config.userlat + "&lon=" + this.config.userlon + "&rad=100&key="+this.config.airKey;
-			 
-        request(url, function(error, response, body) {
-            if (error) {
-                console.log("Error: " + err.message);
-                callback(null);
-            }
-            callback(self.parseAIR(body));
-        });
+    fetchWeatherData: async function () {
+        
+        const url = `https://api.openweathermap.org/data/3.0/onecall?lat=${this.config.userlat}&lon=${this.config.userlon}&exclude=minutely&appid=${this.config.apiKey}&units=${this.config.units}&lang=en`;
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Weather API response was not ok');
+            const data = await response.json();
+            return this.parseWeatherData(data);
+        } catch (error) {
+            console.log("Weather Data Error:", error.message);
+            return null;
+        }
     },
 
-
-    getALERT: function(callback) {
-        var self = this;
-        url = "http://api.wunderground.com/api/a4d00a39e75848da/alerts/q/pws:KPALANCA9.json"
-        request(url, function(error, response, body) {
-            if (error) {
-                console.log("Error: " + err.message);
-                callback(null);
-            }
-            callback(self.parseALERT(body));
-        });
+    fetchAirQuality: async function () {
+        
+        const url = `http://api.airvisual.com/v2/nearest_city?lat=${this.config.userlat}&lon=${this.config.userlon}&key=${this.config.airKey}`;
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Air Quality API response was not ok');
+            const data = await response.json();
+            return { air: data.data.current.pollution };
+        } catch (error) {
+            console.log("Air Quality Data Error:", error.message);
+            return null;
+        }
     },
 
-    parseALERT: function(response) {
-        var alert = JSON.parse(response);
-       // console.log(alert.alerts);
-        if (this.config.lang == "en" && alert != "undefined" || null) {
-            alert = {
-                alert: alert
+    fetchSunriseSunset: async function () {
+        
+        const url = `https://api.sunrise-sunset.org/json?lat=${this.config.userlat}&lng=${this.config.userlon}&formatted=0`;
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Sunrise-Sunset API response was not ok');
+            const data = await response.json();
+            return {
+                sunrise: data.results.sunrise,
+                sunset: data.results.sunset,
+                day_length: data.results.day_length
             };
-        } else {
-            for (var i = 0; i < alert.length; i++) {
-                var alerts = alert[i];
-                if (alerts != undefined) {
-                    if (this.config.lang != 'en') {
-                        Promise.all([
-                            translate(alerts.description, {
-                                from: 'en',
-                                to: this.config.lang
-                            })
-                        ]).then(function(results) {
-                            var desc = results[0].text;
-                            var level = 2;
-                            var level = alerts.level_meteoalarm;
-                            alert = {
-                                desc,
-                                level
-                            };
-                        })
-                    } else {
-                        var desc = alerts.description;
-                        var level = 2;
-                        alert = {
-                            desc,
-                            level
-                        };
-                    }
+        } catch (error) {
+            console.log("Sunrise-Sunset Data Error:", error.message);
+            return null;
+        }
+    },
 
-                } else {
-                    alert = {
-                        desc,
-                        level
-                    };
-                }
-            }
+    parseWeatherData: function (data) {
+        
+        const current = {
+            weather: data.current.weather[0].main,
+            weather_f: data.current.weather[0].description,
+            temp_c: Math.round(data.current.temp),
+            temp_f: Math.round(data.current.temp),
+            icon: this.imageArray[data.current.weather[0].icon] || "unknown",
+            humidity: data.current.humidity,
+            pressure_mb: data.current.pressure,
+            pressure_in: Math.round(data.current.pressure * 0.02953),
+            UV: data.current.uvi,
+            wind_mph: data.current.wind_speed,
+            wind_kph: data.current.wind_speed,
+            visibility_mi: Math.round(data.current.visibility * 0.00062137),
+            visibility_km: data.current.visibility,
         };
 
-        return alert;
-    },
+        const forecast = data.daily.slice(0, 4).map(day => {
+            return {
+                date: { weekday_short: moment.unix(day.dt).utc().format('ddd') },
+                high: {
+                    fahrenheit: Math.round(day.temp.day),
+                    celsius: Math.round(day.temp.day)
+                },
+                low: {
+                    fahrenheit: Math.round(day.temp.night),
+                    celsius: Math.round(day.temp.night)
+                },
+                desc: day.weather[0].description,
+                icon: this.imageArray[day.weather[0].icon] || "unknown"
+            };
+        });
 
-	
-	parseForecast: function(response) {
-        var result = JSON.parse(response);
-	   forecast = []; 
-         for (var i = 0; i < result.list.length; i++) {
-             forecast[i] = result.list[i];
-	
-			var day = moment.unix(forecast[i].dt).utc().format('ddd');
-			
-			var newDay = {
-                 date: {
-                     weekday_short: day
-                 }
-             };
-			forecast[i] = Object.assign(forecast[i], newDay);
-			
-			
-             var highF = Math.round(forecast[i].temp.day);
-             var lowF = Math.round(forecast[i].temp.night);
-             var highC = Math.round(forecast[i].temp.day);
-             var lowC = Math.round(forecast[i].temp.night);
-             var high = {
-                 high: {
-                     fahrenheit: highF,
-                     celsius: highC
-                 }
-             };
-             var low = {
-                 low: {
-                     fahrenheit: lowF,
-                     celsius: lowC
-                 }
-             };
-			 forecast[i] = Object.assign(forecast[i], high);
-             forecast[i] = Object.assign(forecast[i], low);	
-			 
-			 var desc = forecast[i].weather[0].description;
-			 var description = { 
-			                    desc: {
-									   desc
-									   }
-									   };
-			 forecast[i] = Object.assign(forecast[i], description);
-			 
-		 	 var output = forecast[i].weather[0].icon;
-			 let icony = {icon:this.imageArray[output]};  
-			 forecast[i] = Object.assign(forecast[i], icony);
-			 forecast.push(forecast[i]);
-			 forecast = forecast.slice(0, 4);
-			 };
-			
-			
-		return forecast;
-		
-    },
-	
-	
-    parseResponse: function(response) {
-        var result = JSON.parse(response);
-      
-         current = {current:{
-        	weather: result.weather[0].main,
-			weather_f: result.weather[0].description,
-            temp_c: Math.round(result.main.temp),
-            temp_f: Math.round(result.main.temp),
-            icon: this.imageArray[result.weather[0].icon],
-            relative_humidity: result.main.humidity,
-            pressure_in: Math.round(result.main.pressure*0.02953),
-            pressure_mb: result.main.pressure,
-            UV: UV,
-            wind_mph: result.wind.speed,
-            wind_kph: result.wind.speed,
-           visibility_mi: Math.round(result.visibility* 0.00062137),
-           visibility_km: result.visibility,
-		   forecast:{
-    "0": {fcttext:result.weather[0].description},
-    "1": {fcttext:result.weather[0].description}
-               }  
-		}
-		};
-		console.log(result);
-		current = {current, forecast}; 
-		return current;
-       
-    },
-
-    parseAIR: function(response) {
-        var air = JSON.parse(response);
-        airdata = {
-            air: air.data.current.pollution
-        }
-        return airdata;
-    },
-
-    parseSRSS: function(response) {
-         var srss = JSON.parse(response);
-         sun = {
-             sunrise: srss.results.sunrise,
-             sunset: srss.results.sunset,
-             day: srss.results.day_length
-         }
-         return sun;
-     },
+        return { current, forecast };
+    }
 };
 
 if (typeof module !== "undefined") {
