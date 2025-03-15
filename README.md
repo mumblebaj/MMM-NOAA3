@@ -31,9 +31,9 @@ Remember not all providers are created equal... Some are a bit better than other
 
 * weatherbit ~ https://www.weatherbit.io/api
 * piratesky ~ https://pirateweather.net/en/latest/API/  //[userlat and userlong ONLY work with this right now] 
-* weatherunlocked ~ https://developer.weatherunlocked.com/   [provides both api and appid keys, need them both, see example]
 * accuweather ~ https://developer.accuweather.com/
 * openweather ~ https://openweathermap.org/api 
+* msn ~ http://weather.service.msn.com
  
 ##    YOU WILL NEED YOUR LATITUDE AND LONGITUDE
  You can find them right here: 
@@ -51,40 +51,30 @@ Will default to EN if NO translation file is found.
 ## Provider name MUST be in the config.js. Here they are:
 	 
 * weatherbit  
-* darksky
-* weatherunlocked 
-* accuweather  
-* openweather 
+* piratesky
+* accuweather 
+* openweather
+* msn
     
-* For all of them EXCEPT WEATHERUNLOCKED
-     ```   {
-        module: 'MMM-NOAA3',
-	position: 'top_left',
-        config: {
-		    provider: "must be in quotes", // From list above
-		    apiKey: "YOUR API KEY",        // From one of the providers listed above
-		    airKey: "YOUR API KEY",    
-	        css: "NOAA3",                   // THIS MUST CONTAIN A CSS STYLE NAME 
-		userlat: "xxxx", //MUST HAVE BOTH
-	        userlon: "xxxx"  //MUST HAVE BOTH
-	 }
-         },
-	```
-* WeatherUnlocked API Example:
-	```
-	  {
-        module: 'MMM-NOAA3',
-	position: 'top_left',
-        config: {
-		    provider: "weatherunlocked",       
-		    apiKey: "YOUR API KEY",  
-		    appID: "YOUR APP ID",  
-		    airKey: "YOUR API KEY", 
-	        css: "NOAA3",                  // THIS MUST CONTAIN A CSS STYLE NAME
-		userlat: "xxxx", //MUST HAVE BOTH
-	        userlon: "xxxx"  //MUST HAVE BOTH
-	 }
-         },
+* For all
+     ```
+	    {
+            module: 'MMM-NOAA3',
+            position: 'top_right',
+            disabled: false,
+            config: {
+                provider: "openweather",
+                apiKey: "your api key", // msn does not require an apiKey
+                airKey: "c097c9cb-2a72-4e43-9868-907196674033",
+                units: "metric",
+                css: "NOAA4",
+                updateInterval: 1800000,
+                userlat: "xx.xxxxxx",
+                userlon: "xx.xxxxxx",
+                language: "en",
+                zip: 0000 //You zip code goes here
+            }
+        }, 
 	```
 
 	
