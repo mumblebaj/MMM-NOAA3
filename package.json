@@ -1,6 +1,6 @@
 {
   "name": "mmm-noaa3",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "This repository is maintained by Cowboysdude \r [This is the third version of this module for MagicMirror2]",
   "main": "MMM-NOAA3.js",
   "dependencies": {

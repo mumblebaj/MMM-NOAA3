@@ -1,233 +1,124 @@
-/* Magic Mirror
- * Module: MMM-NOAA3
- * By cowboysdude
- */
- var request = require('request');
- const moment = require('moment');
- const fs = require('fs');
- var lat, lon, city, zip, alerts, sun;
+const request = require('request');
+const moment = require('moment');
 
- var provider = {
-        config: {
+const provider = {
+    config: {},
 
-        },
+    imageArray: {
+        "clear-day": "clear",
+        "clear-night": "clear",
+        "partly-cloudy-day": "mostlycloudy",
+        "partly-cloudy-night": "mostlycloudy",
+        "cloudy": "cloudy",
+        "rain": "rain",
+        "sleet": "sleet",
+        "snow": "chancesnow",
+        "wind": "na",
+        "fog": "fog",
+        "overcast": "overcast",
+        "Breezy and Overcast": "overcast"
+    },
 
-           imageArray: {
-            "clear-day": "clear",
-            "clear-night": "clear",
-            "partly-cloudy-day": "mostlycloudy",
-            "partly-cloudy-night": "mostlycloudy",
-            "cloudy": "cloudy",
-            "rain": "rain",
-            "sleet": "sleet",
-            "snow": "chancesnow",
-            "wind": "na",
-            "fog": "fog",
-			"overcast":"overcast",
-			"Breezy and Overcast":"overcast"
-        },
+    addModuleConfiguration(moduleConfig) {
+        if (!moduleConfig.apiKey) {
+            throw new Error('Invalid config, No API key provided');
+        }
+        this.config = { ...moduleConfig };
+    },
 
-		  		  addModuleConfiguration: function(moduleConfig) {
-               if(!moduleConfig.apiKey) {
-                   throw new Error('Invalid config, No key for DarkSky');
-         }
-           this.config.apiKey = moduleConfig.apiKey;
- 		   this.config.airKey = moduleConfig.airKey;
-		   this.config.userlat = moduleConfig.userlat;
-		   this.config.userlon = moduleConfig.userlon;
-        },
-
-
-		getSRSS: function(callback) {
-         var self = this;
-         url = "http://api.sunrise-sunset.org/json?lat="+this.config.userlat+"&lng="+this.config.userlon+"&formatted=0";
-         request(url, function(error, response, body) {
-             if (error) {
-                 console.log("Error: " + error.message);
-                 callback(null);
-             }
-             callback(self.parseSRSS(body));
-         });
-     },
-
-	    parseSRSS: function(response) {
-         var srss = JSON.parse(response);
-         sun = {
-             sunrise: srss.results.sunrise,
-             sunset: srss.results.sunset,
-             day: srss.results.day_length
-         }
-         return sun;
-     },
-
-
-
-      getData: function(callback) {
-		 var self = this;
-		 if (config.language != 'gr') {
-		 url = "https://api.darksky.net/forecast/"+this.config.apiKey+"/"+this.config.userlat+","+this.config.userlon+"?lang="+config.language;
-	     } else {
-		 url = "https://api.darksky.net/forecast/"+this.config.apiKey+"/"+this.config.userlat+","+this.config.userlon+"?lang=el";
-		 }
-		 request(url, function (error, response, body) {
-
-			 if (error) {
-
-                 console.log("Error: " + err.message);
-                 callback(null);
-             }
-
-             callback(self.parseResponse(body));
-         });
-     },
-
-     parseResponse: function(response) {
-
-         var result = JSON.parse(response);
-
-         var forecast = [];
-         for (var i = 0; i < result.daily.data.length; i++) {
-             forecast[i] = result.daily.data[i];
-             var now = moment.unix(forecast[i].time).format('ddd');
-             var newDay = {
-                 date: {
-                     weekday_short: now
-                 }
-             };
-             forecast[i] = Object.assign(forecast[i], newDay);
-             var highF = Math.round(forecast[i].temperatureHigh);
-             var lowF = Math.round(forecast[i].temperatureLow);
-
-             function toCelsius(f) {
-                 return (5 / 9) * (f - 32);
-             }
-             var highC = Math.round(toCelsius(forecast[i].temperatureHigh));
-             var lowC = Math.round(toCelsius(forecast[i].temperatureLow));
-             var high = {
-                 high: {
-                     fahrenheit: highF,
-                     celsius: highC
-                 }
-             };
-             var low = {
-                 low: {
-                     fahrenheit: lowF,
-                     celsius: lowC
-                 }
-             };
-
-			 let icony = { icon:this.imageArray[forecast[i].icon]};
-
-              var forecasty = { forecast:{
-    "0": {fcttext:result.hourly.summary,fcttext_metric:result.hourly.summary},
-    "1": {fcttext:result.hourly.summary,fcttext_metric:result.hourly.summary}
-               }   };
-            // console.log(forecasty);
-             forecast[i] = Object.assign(forecast[i], high);
-             forecast[i] = Object.assign(forecast[i], low);
-			 forecast[i] = Object.assign(forecast[i], icony);
-			 forecast[i] = Object.assign(forecast[i], forecasty);
-			  var desc = forecast[i].summary;
-			 var description = {
-			                    desc: {
-									   desc
-									   }
-									   };
-			 forecast[i] = Object.assign(forecast[i], description);
-
-             forecast = forecast.slice(0, 4);
-         };
-
-
-         current = {
-             current: {
-                 ss: moment(sun.sunset).format('HH'),
-				 weather: result.currently.summary,
-                 temp_f: Math.round(result.currently.temperature),
-				 temp_c: Math.round((result.currently.temperature - 32) * 5 / 9),
-                 icon: this.imageArray[result.currently.icon],
-                 relative_humidity: result.currently.humidity.toString().replace(/^[0.]+/, "") + "%",
-                 pressure_in: Math.round(result.currently.pressure*0.02953),
-                 pressure_mb: Math.round(result.currently.pressure),
-                 UV: result.currently.uvIndex,
-                 visibility_mi: result.currently.visibility,
-                 wind_mph: result.currently.windSpeed,
-				 wind_kph: result.currently.windSpeed,
-                 forecast: {
-    "0": {fcttext:result.hourly.summary,fcttext_metric:result.hourly.summary},
-    "1": {fcttext:result.hourly.summary,fcttext_metric:result.hourly.summary}
-               }
-				 }
-         }
-		 if (typeof result.alerts == 'object') {
-		 alerts = { alerts: result.alerts }
-		 }
-
-         if (typeof alerts == 'object') {
-         current = {
-             current,
-             forecast,
-		 alerts }
-         } else {
-			current = {
-             current,
-             forecast  }
-
-	 };
-         return current;
-     },
-
-
-
-     getAIR: function(callback) {
-         var self = this;
-         url = "http://api.airvisual.com/v2/nearest_city?lat=" + this.config.userlat + "&lon=" + this.config.userlon + "&rad=100&key="+this.config.airKey;
-         request(url, function(error, response, body) {
-			     if (error) {
-                 console.log("Error: " + error.message);
-                 callback(null);
-             }
-             callback(self.parseAIR(body));
-         });
-     },
-
-	 getALERT: function(callback) {
-        var self = this;
-        url = "https://api.darksky.net/forecast/"+this.config.apiKey+"/"+this.config.userlat+","+this.config.userlon+"?lang="+config.language;
-        request(url, function(error, response, body) {
-
-            if (error) {
-                console.log("Error: " + error.message);
-
-                callback(null);
-            }
-            callback(self.parseALERT(body));
-
+    async fetchData(url) {
+        return new Promise((resolve, reject) => {
+            request(url, (error, response, body) => {
+                if (error) {
+                    console.error("Request Error:", error.message);
+                    reject(null);
+                } else {
+                    resolve(JSON.parse(body));
+                }
+            });
         });
     },
 
-
-    parseAIR: function(response) {
-        var air = JSON.parse(response);
-        airdata = {
-            air: air.data.current.pollution
+    async fetchSunriseSunset() {
+        const url = `https://api.sunrise-sunset.org/json?lat=${this.config.userlat}&lng=${this.config.userlon}&formatted=0`;
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Sunrise-Sunset API response was not ok');
+            const data = await response.json();
+            return {
+                sunrise: data.results.sunrise,
+                sunset: data.results.sunset,
+                day_length: data.results.day_length
+            };
+        } catch (error) {
+            console.log("Sunrise-Sunset Data Error:", error.message);
+            return null;
         }
-        return airdata;
+    },
+	
+    fetchAirQuality: async function () {
+        console.log('MMM-NOAA3 fetching air quality data');
+        const url = `http://api.airvisual.com/v2/nearest_city?lat=${this.config.userlat}&lon=${this.config.userlon}&key=${this.config.airKey}`;
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Air Quality API response was not ok');
+            const data = await response.json();
+            return { air: data.data.current.pollution };
+        } catch (error) {
+            console.log("Air Quality Data Error:", error.message);
+            return null;
+        }
     },
 
-
-	  parseALERT: function(response) {
-        var issue = JSON.parse(response);
-		if (typeof issue != 'undefined'){
-		alerts = {alerts: issue.alerts};
-		return alerts;
-		} else {
-		console.log("No Alerts");
-		}
+    async fetchWeatherData() {
+        const url = `https://api.pirateweather.net/forecast/${this.config.apiKey}/${this.config.userlat},${this.config.userlon}?units=${this.config.units}&lang=${this.config.language}`;
+        try {
+            const data = await this.fetchData(url);
+            return this.parseWeatherData(data);
+        } catch {
+            return(null);
+        }
     },
 
- };
+    parseWeatherData(data) {
+        if (!data) return null;
 
- if (typeof module !== "undefined") {
-     module.exports = provider;
- }
+        const forecast = data.daily.data.slice(0, 4).map(day => {
+            return {
+                date: { weekday_short: moment.unix(day.time).format('ddd') },
+                high: {
+                    fahrenheit: Math.round(day.temperatureHigh),
+                    celsius: Math.round((5 / 9) * (day.temperatureHigh - 32))
+                },
+                low: {
+                    fahrenheit: Math.round(day.temperatureLow),
+                    celsius: Math.round((5 / 9) * (day.temperatureLow - 32))
+                },
+                icon: this.imageArray[day.icon] || "na",
+				desc: day.summary
+            };
+        });
+
+        const current = {
+            ss: moment(data.daily.data[0].sunsetTime).format('HH'),
+            weather: data.currently.summary,
+			weather_f: data.currently.summary,
+            temp_f: Math.round(data.currently.temperature),
+            temp_c: Math.round((data.currently.temperature - 32) * 5 / 9),
+            icon: this.imageArray[data.currently.icon] || "na",
+			UV: data.currently.uvIndex,
+            humidity: `${Math.round(data.currently.humidity * 100)}%`,
+            pressure_mb: Math.round(data.currently.pressure),
+            wind_mph: data.currently.windSpeed,
+            wind_kph: data.currently.windSpeed * 1.60934,
+			visibility_mi: Math.round(data.currently.visibility * 0.00062137),
+            visibility_km: data.currently.visibility,
+        };
+
+        return { current, forecast };
+    }
+};
+
+if (typeof module !== "undefined") {
+    module.exports = provider;
+}
