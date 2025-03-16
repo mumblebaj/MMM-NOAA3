@@ -138,7 +138,7 @@ var provider = {
 				
 				const forecast = weather.forecast.slice(0, 4).map(day => {
 					return {
-						date: { weekday_short: moment.unix(day.$.shortday).utc().format('ddd') },
+						date: { weekday_short: day.$.shortday },
 						high: {
 							fahrenheit: Math.round(day.$.high),
 							celsius: Math.round(day.$.high)
