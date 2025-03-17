@@ -41,10 +41,10 @@ module.exports = NodeHelper.create({
             this.getSRSS();
             this.getAIR();
             this.getMoonData();
-            if (this.providers[config.provider] == 'ds') {
-                console.log(this.providers[config.provider]);
-                this.getALERT()
-            };
+            // if (this.providers[config.provider] == 'ds') {
+            //     console.log(this.providers[config.provider]);
+            //     this.getALERT()
+            // };
         }
         this.scheduleUpdate(this.config.updateInterval);
     },
@@ -56,10 +56,10 @@ module.exports = NodeHelper.create({
             self.getData();
             self.getSRSS();
             self.getAIR();
-            self.getALERT();
-            if (self.providers[config.provider] == 'ds') {
-                self.getALERT()
-            };
+            // self.getALERT();
+            // if (self.providers[config.provider] == 'ds') {
+            //     self.getALERT()
+            // };
         }, self.config.updateInterval);
     },
 
@@ -122,12 +122,12 @@ module.exports = NodeHelper.create({
 		}
     },
 
-    getALERT: function () {
-        var self = this;
-        self.provider.getALERT(function (response) {
-            self.sendSocketNotification("ALERT_RESULT", response ? response : 'NO_ALERT_DATA');
-        });
-    },
+    // getALERT: function () {
+    //     var self = this;
+    //     self.provider.getALERT(function (response) {
+    //         self.sendSocketNotification("ALERT_RESULT", response ? response : 'NO_ALERT_DATA');
+    //     });
+    // },
 
     getProviderFromConfig: function (config) {
         if (!this.providers[config.provider]) {
