@@ -1,6 +1,7 @@
-/* Magic Mirror
+/* MagicMirror²
  * Module: MMM-NOAA3
  * By cowboysdude with HUGE Thanks to JimL at https://www.phphelp.com!!
+ * Last updated by mumblebaj
  */
 
 var current = {};

@@ -1,7 +1,7 @@
 {
   "name": "mmm-noaa3",
   "version": "3.1.0",
-  "description": "This repository is maintained by Cowboysdude \r [This is the third version of this module for MagicMirror2]",
+  "description": "This repository is maintained by Cowboysdude \r [This is the third version of this module for MagicMirror²]",
   "main": "MMM-NOAA3.js",
   "dependencies": {
     "fs": "^0.0.1-security",
@@ -25,7 +25,9 @@
     "url": "git+https://github.com/cowboysdude/MMM-NOAA3.git"
   },
   "keywords": [
-    "MagicMirror2"
+    "MagicMirror²",
+    "Weather",
+    "NOAA"
   ],
   "bugs": {
     "url": "https://github.com/cowboysdude/MMM-NOAA3/issues"

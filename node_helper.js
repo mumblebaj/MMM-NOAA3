@@ -1,6 +1,7 @@
-/* Magic Mirror
+/* MagicMirror²
  * Module: MMM-NOAA3
  * By Cowboysdude special Thanks to JimL from php help forum!
+ * Updated by mumblebaj
  */
 var NodeHelper = require("node_helper");
 var moment = require('moment');
