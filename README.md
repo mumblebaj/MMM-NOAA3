@@ -5,6 +5,7 @@ We've lost 3 providers so far in the past year..... There are no new providers o
 at this point you can use at your own risk.  
 
 [This is the third version of this module for MagicMirror²]
+[![license](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
 
 # MMM-NOAA V3.0
 
