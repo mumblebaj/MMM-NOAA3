@@ -3,11 +3,26 @@ const moment = require('moment');
 const provider = {
     config: {},
 
-    imageArray: {
-        "01n": "clear", "01d": "clear", "02d": "mostlycloudy",
-        "03d": "mostlycloudy", "04d": "mostlycloudy", "09d": "rain",
-        "10d": "rain", "11d": "tstorms", "13d": "snow", "50d": "chancerain",
-        "03n": "mostlycloudy", "800": "overcast", "04n": "overcast"
+        imageArray: {
+        "01n": "clear",
+        "01d": "clear",
+        "02d": "mostlycloudy",
+		"02n": "mostlycloudy",
+        "03d": "mostlyclear",
+		"03n": "mostlyclear",
+        "04d": "overcast",
+		"04n": "overcast",
+        "09d": "rain",
+		"09n": "rain",
+        "10d": "rain",
+		"10n": "rain",
+        "11d": "tstorms",
+		"11n": "tstorms",
+        "13d": "snow",
+		"13n": "snow",
+        "50d": "fog",
+		"50n": "fog",
+        "800": "overcast",
     },
 
     addModuleConfiguration: function (moduleConfig) {
