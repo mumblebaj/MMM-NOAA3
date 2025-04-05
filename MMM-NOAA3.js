@@ -188,7 +188,7 @@ Module.register("MMM-NOAA3", {
                 this.scheduleCarousel();
             }
         this.updateDom();
-		console.log(this.config.updateInterval);
+		
         this.config.updateInterval;
     },
 	  processMOON: function(data) {

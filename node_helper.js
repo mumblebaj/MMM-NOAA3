@@ -81,7 +81,7 @@ module.exports = NodeHelper.create({
             var moon = moons[0]['Phase'];
             self.sendSocketNotification("MOON_RESULT", moon ? moon : 'NO_MOON_DATA');
         } catch (error) {
-            console.log("getMoonData Error: " + error.message);
+            console.error("getMoonData Error: " + error.message);
             return;
         }
     },
@@ -134,7 +134,7 @@ module.exports = NodeHelper.create({
         if (!this.providers[config.provider]) {
             throw new Error('Invalid config No provider selected');
         }
-        console.log(this.providers[config.provider]);
+        // console.log(this.providers[config.provider]);
         return require('./providers/' + this.providers[config.provider] + '.js');
     }
 });
