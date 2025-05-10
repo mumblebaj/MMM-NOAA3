@@ -1,7 +1,7 @@
 {
   "name": "mmm-noaa3",
   "version": "3.1.2",
-  "description": "This repository is maintained by Cowboysdude \r [This is the third version of this module for MagicMirror²]",
+  "description": "This repository is maintained by mumblebaj",
   "main": "MMM-NOAA3.js",
   "dependencies": {
     "fs": "^0.0.1-security",
@@ -16,13 +16,13 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "cowboysdude",
-  "license": "ISC",
+  "license": "MIT",
   "directories": {
     "example": "examples"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cowboysdude/MMM-NOAA3.git"
+    "url": "git+https://github.com/mumblebaj/MMM-NOAA3.git"
   },
   "keywords": [
     "MagicMirror²",
@@ -30,7 +30,7 @@
     "NOAA"
   ],
   "bugs": {
-    "url": "https://github.com/cowboysdude/MMM-NOAA3/issues"
+    "url": "https://github.com/mumblebaj/MMM-NOAA3/issues"
   },
-  "homepage": "https://github.com/cowboysdude/MMM-NOAA3#readme"
+  "homepage": "https://github.com/mumblebaj/MMM-NOAA3#readme"
 }

@@ -1,13 +1,12 @@
-This repository is maintained by Cowboysdude 
+# MMM-NOAA V3.0
 
-Due to Darksky no longer offering free api keys this module is quickly reaching the deprecated state.
-We've lost 3 providers so far in the past year..... There are no new providers offering api keys and 
-at this point you can use at your own risk.  
-
-[This is the third version of this module for MagicMirror²]
+[![Platform](https://img.shields.io/badge/platform-MagicMirror-informational)](https://MagicMirror.builders)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
 
-# MMM-NOAA V3.0
+## Support
+If you like the module you can support my work by giving me a star or buy me a coffee.
+
+<a href="https://www.buymeacoffee.com/mumblebaj" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 45px !important;width: 180px !important;" ></a>
 
 **Weather for your mirror**
 
@@ -21,7 +20,7 @@ See below!!
 
 ## Your terminal installation instructions
 
-* `git clone https://github.com/cowboysdude/MMM-NOAA3` into the `~/MagicMirror/modules` directory.
+* `git clone https://github.com/mumblebaj/MMM-NOAA3.git` into the `~/MagicMirror/modules` directory.
 *  `cd MMM-NOAA3`
 *  `npm install`
 
@@ -87,14 +86,14 @@ zip: '329671', //MUST have valid zip Code
 	```
 	 {
         module: 'MMM-NOAA3',
-	position: 'top_left',
-        config: {
-		provider: "accuweather",   
-		airKey: "YOUR API KEY", 
-	        css: "NOAA3",                 // THIS MUST CONTAIN A CSS STYLE NAME 
-		userlat: "xxxx", //MUST HAVE BOTH
-	        userlon: "xxxx"  //MUST HAVE BOTH
-		zip: "11111" //MUST have valid zip Code
+        position: 'top_left',
+            config: {
+            provider: "accuweather",   
+            airKey: "YOUR API KEY", 
+            css: "NOAA3",                 // THIS MUST CONTAIN A CSS STYLE NAME 
+            userlat: "xxxx", //MUST HAVE BOTH
+            userlon: "xxxx"  //MUST HAVE BOTH
+            zip: "11111" //MUST have valid zip Code
 	}
     },
 	
@@ -116,12 +115,12 @@ You can add this to your config.js to change it if you'd like ... like this ->
     {
         module: 'MMM-NOAA3',
         config: {
-		    provider: "Yahoo",   
+		    provider: "msn",   
 		    airKey: "YOUR API KEY", 
-	        css: "NOAA3",   // THIS MUST CONTAIN A CSS STYLE NAME
+	        css: "NOAA4",   // THIS MUST CONTAIN A CSS STYLE NAME
 		    updateInterval: 15 * 60 * 1000, // every 15 minutes or whatever you choose but make sure you have an api that will allow that many calls per day!!! 
-		   userlat: "xxxx", //MUST HAVE BOTH
-	           userlon: "xxxx"  //MUST HAVE BOTH 
+		    userlat: "xxxx", //MUST HAVE BOTH
+	        userlon: "xxxx"  //MUST HAVE BOTH 
 	}
     },
 	
@@ -159,7 +158,7 @@ When you mouseover on the 4 day forecast you'll get your forecast for that day .
 
 ## Custom CSS
 What if I want just plain ole white?  
-Well just go to your css directory in MagicMirror2 and open up the css directory and edit your custom.css file like this!  
+Well just go to your css directory in MagicMirror² and open up the css directory and edit your custom.css file like this!  
  ```
   .MMM-NOAA3 .rheading {
      background-color:  #000;
