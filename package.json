@@ -1,6 +1,6 @@
 {
   "name": "mmm-noaa3",
-  "version": "3.1.3",
+  "version": "3.1.4",
   "description": "This repository is maintained by mumblebaj",
   "main": "MMM-NOAA3.js",
   "dependencies": {
