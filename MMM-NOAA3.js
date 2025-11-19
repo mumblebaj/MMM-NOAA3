@@ -93,7 +93,7 @@ Module.register("MMM-NOAA3", {
             de: "translations/de.json",
             es: "translations/es.json",
             fr: "translations/fr.json",
-            zh_cn: "translations/zh_cn.json",
+            "zh-cn": "translations/zh_cn.json",
             nl: "translations/nl.json",
             nb: "translations/nb.json",
 			it: "translations/it.json",
